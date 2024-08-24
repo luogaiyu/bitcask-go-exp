@@ -23,22 +23,37 @@ func db_delete_test() {
 }
 
 func Test_db_loadIndexFromDataFile(t *testing.T) {
-	db := InitDB()
-	db.loadIndexFromDataFile()
+	cur_db := InitDB()
 	
-	item:= db.index.Get([]byte("1234")).(*Item)
-	lgRecord := db.fio.Read(item.lgPos)
-	fmt.Println("||||")
-	
-	
-	fmt.Println(lgRecord.RType)
-	fmt.Println(lgRecord.KeySize)
-	fmt.Println(lgRecord.ValueSize)
-	fmt.Println(string(lgRecord.Key))
-	fmt.Println("---------")
-	fmt.Println(string(lgRecord.Value))
+	res,err := cur_db.Get([]byte("12345"))
 
-	fmt.Println()
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}else {
+		fmt.Println(string(res))
+	}
+
+	// item:= db.index.Get([]byte("1234"))
+	// if item != nil {
+	// 	item = item.(*Item)
+	// }else{
+	// 	log.Println("index 返回为空")
+	// }
+	
+
+	// lgRecord := db.fio.Read(item.lgPos)
+	// fmt.Println("||||")
+	
+	
+	// fmt.Println(lgRecord.RType)
+	// fmt.Println(lgRecord.KeySize)
+	// fmt.Println(lgRecord.ValueSize)
+	// fmt.Println(string(lgRecord.Key))
+	// fmt.Println("---------")
+	// fmt.Println(string(lgRecord.Value))
+
+	// fmt.Println()
 	// fmt.Println(db.index.Get([]byte("4321")))
 }
 

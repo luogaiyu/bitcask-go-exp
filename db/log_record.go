@@ -6,18 +6,13 @@ import (
 	"unsafe"
 )
 
-// todo : 从上层的看的时候需要知道offset 和size 是否有必要
+// todo : 从上层的看的时候需要知道size 是否有必要
 type LogPos struct {
 	Fid    string
-	Offset int64
-	Size   int64
+	Offset uint64
+	// Size   int64
 }
-type RType = byte
 
-const (
-	LogRecordNormal  RType = iota // 正常记录
-	LogRecordDeleted              // 被删除的记录
-)
 
 const (
 	MaxUintLen32 = 4
@@ -29,10 +24,15 @@ func InitLogPos() *LogPos {
 	return &LogPos{
 		Fid:    "00000001",
 		Offset: 0,
-		Size:   0,
 	}
 }
 
+type RType = uint8
+
+const (
+	LogRecordNormal  RType = iota // 正常记录
+	LogRecordDeleted              // 被删除的记录
+)
 type LogRecord struct {
 	RType     uint8 // 记录类型, 分为0和1
 	KeySize   uint32

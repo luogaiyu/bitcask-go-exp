@@ -2,6 +2,8 @@ package db
 
 import (
 	"bytes"
+	"errors"
+
 	"github.com/google/btree"
 )
 
@@ -15,10 +17,19 @@ type Item struct {
 	lgPos *LogPos
 }
 
+func GetNewItemByKey(key []byte) *Item {
+	return &Item{
+		key: key,
+	}
+
+}
 func (ai *Item) Less(bi btree.Item) bool {
 	return bytes.Compare(ai.key, bi.(*Item).key) == -1
 }
 
+func (ai *Item) GetKey(bi btree.Item) []byte {
+	return ai.key
+}
 // 需要返回对应的引用
 func  InitBTree() *Btree {
 	return &Btree{
@@ -34,11 +45,17 @@ func (bt *Btree) Put(key []byte, lgPos *LogPos) {
 	bt.Tree.ReplaceOrInsert(itm)
 }
 
-func (bt *Btree) Get(key []byte) btree.Item {
+func (bt *Btree) Get(key []byte) (btree.Item,error) {
 	itm := &Item{
 		key: key,
 	}
-	return bt.Tree.Get(itm)
+	res := bt.Tree.Get(itm)
+	if res != nil {
+		return bt.Tree.Get(itm),nil
+	}else {
+		return nil, errors.New("the key in index not found, value can't get ")
+	}
+	
 }
 
 func (bt *Btree) Delete(key []byte) {

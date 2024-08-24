@@ -1,30 +1,18 @@
 package test
 
-
-import 
-(
-	"testing"
-	"fmt"
+import (
+	// "bitcask-go-exp/db"
+	// "fmt"
+	// "testing"
+	// "unsafe"
+	// "encoding/binary"
 )
 
-type m struct{
-	k string
-	v string
-}
+// func TestA(t *testing.T){
+// 	// lgRecord := &db.LogRecord{
 
-func A(){
-	t :=  m{
-		k: "123",
-		v: "321",
-	} 
-	t1 := &t 
-	t1.k = "1234"
-
-	fmt.Println(t1)
-	fmt.Println(t)
-}
-
-
-func TestA(t *testing.T){
-	A()
-}
+// 	// }
+// 	// tmp := unsafe.Sizeof(lgRecord.KeySize)
+// 	// m := binary.BigEndian.Uint32(tmp)
+// 	// fmt.Println(m)
+// }
