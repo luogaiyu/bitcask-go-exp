@@ -32,19 +32,18 @@ func Test_benchmark_single_process_put_get_once(T *testing.T) {
 	key := []byte("1234")
 	value := []byte("1234")
 
-	cur_db.Put(key, value)
-
 	// 测试 put 和 get方法
+	cur_db.Put(key, value)
 	b, _ := cur_db.Get(key)
 	fmt.Println(string(b))
 	cur_db.TrucDB()
 }
 
 // 单线程存数据100次
+// 20240824 发现 如果多次进行数据存放操作, 会导致数据被重复写入同一个 offset 这个是因为修改了 offset的逻辑导致的, 看起来offset 是有必要的
 func Test_benchmark_single_process_put_get_100_times(T *testing.T) {
 	cur_db := db.InitDB()
 	res_map := make(map[string]string)
-
 	for i := 0; i <= 1000; i++ {
 		key := utils.GetRandomString()
 		value := utils.GetRandomString()
@@ -62,10 +61,10 @@ func Test_benchmark_single_process_put_get_100_times(T *testing.T) {
 			fmt.Println(err.Error())
 		} else {
 			assert := assert.New(T)
-			assert.Equal(res_map[key], res, "test db [delete get] process is wrong count : "+strconv.Itoa(i))
+			assert.Equal(res_map[key], string(res), "test db [delete get] process is wrong count : "+strconv.Itoa(i))
 		}
-
 	}
+	// cur_db.TrucDB()
 }
 
 func process(T *testing.T, db *db.DB, quant uint32) {

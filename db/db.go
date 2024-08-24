@@ -42,7 +42,7 @@ func InitDB() *DB {
 func (db *DB) Put(key []byte, value []byte) {
 	// 首先将数据保存到索引中, 再将数据写入到内存中, 为什么不将所有的数据写入到内存中, 如果全部写入到内存中可以存多少条数据?
 	// todo 这里可以先判断这个数据在索引中是否提前存在
-	db.index.Put(key, db.logPos) //db.logPos 应该会随着
+	db.index.Put(key, *db.logPos) // 这里[db.logPos] 需要使用值传递, 后面的修改和无关
 
 	// lgPos LogPos, logRecord LogRecord
 	lgRecord := &LogRecord{
@@ -52,12 +52,12 @@ func (db *DB) Put(key []byte, value []byte) {
 		Key:       key,
 		Value:     value,
 	}
-	err, _ := db.fio.Write(*db.logPos, *lgRecord) // 这个地方应该每次都需要
+	err, n := db.fio.Write(*db.logPos, *lgRecord) // 这个地方应该每次都需要
 	if err != nil {
 		log.Fatal("db put log make error!")
 	}
 	// 写文件 -20240824 发现bug offset 导致读取数据位置不对
-	// db.logPos.Offset += uint64(n)
+	db.logPos.Offset += uint64(n)
 }
 
 func (db *DB) Get(key []byte) ([]byte, error) {

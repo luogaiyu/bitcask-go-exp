@@ -37,10 +37,10 @@ func  InitBTree() *Btree {
 	}
 }
 
-func (bt *Btree) Put(key []byte, lgPos *LogPos) {
+func (bt *Btree) Put(key []byte, lgPos LogPos) {
 	itm := &Item{
 		key:   key,
-		lgPos: lgPos,
+		lgPos: &lgPos,
 	}
 	bt.Tree.ReplaceOrInsert(itm)
 }
