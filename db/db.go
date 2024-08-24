@@ -52,12 +52,12 @@ func (db *DB) Put(key []byte, value []byte) {
 		Key:       key,
 		Value:     value,
 	}
-	err, n := db.fio.Write(*db.logPos, *lgRecord) // 这个地方应该每次都需要
+	err, _ := db.fio.Write(*db.logPos, *lgRecord) // 这个地方应该每次都需要
 	if err != nil {
 		log.Fatal("db put log make error!")
 	}
 	// 写文件 -20240824 发现bug offset 导致读取数据位置不对
-	db.logPos.Offset += uint64(n)
+	// db.logPos.Offset += uint64(n)
 }
 
 func (db *DB) Get(key []byte) ([]byte, error) {

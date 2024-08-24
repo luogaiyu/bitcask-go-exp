@@ -36,7 +36,7 @@ func Test_benchmark_single_process_put_get_once(T *testing.T) {
 
 	// 测试 put 和 get方法
 	b, _ := cur_db.Get(key)
-	fmt.Println(b)
+	fmt.Println(string(b))
 	cur_db.TrucDB()
 }
 
