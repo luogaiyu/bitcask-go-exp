@@ -67,6 +67,10 @@ func Test_benchmark_single_process_put_get_100_times(T *testing.T) {
 	cur_db.TrucDB()
 }
 
+// 测试db 删除功能
+func Test_benchmark_single_process_delete_1_times(T *testing.T) {
+
+}
 func process(T *testing.T, db *db.DB, quant uint32) {
 	for i := uint32(0); i < 1000; i++ {
 		db.Put(utils.UInt32_2_Bytes(i), utils.UInt32_2_Bytes(uint32(i*quant)))

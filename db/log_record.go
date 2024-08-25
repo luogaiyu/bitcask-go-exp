@@ -6,7 +6,7 @@ import (
 	"unsafe"
 )
 
-// todo : 从上层的看的时候需要知道size 是否有必要
+// todo : 从上层的看的时候需要知道size 是否有必要, 其实是需要的, 不然会触发两次文件io
 type LogPos struct {
 	Fid    string
 	Offset uint64
@@ -46,7 +46,7 @@ type LogRecord struct {
 //	编码  rtype :1 + keySize:unit32 + ValueSize:32 + key + value:变长
 //
 // 方法需要加上 err异常判断
-// 20240825 修复bug, unsafe.SizeOf 
+// 20240825 修复bug, unsafe.SizeOf
 func EncodeLogRecord(lgRecord LogRecord) ([]byte, uint32) {
 	cursor := uint32(0)
 	buf := make([]byte, maxLogRecordSize)

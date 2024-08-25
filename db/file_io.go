@@ -9,7 +9,7 @@ import (
 )
 
 type FileIO struct {
-	DirPath string // 数据路径
+	DirPath string // 数据路径 exg: 00000001 在定义的数据结构要有注释
 }
 
 const (
@@ -34,6 +34,7 @@ func (fio *FileIO) Write(lgPos LogPos, logRecord LogRecord) (error, uint32) {
 }
 
 // 需要对 解码方法进行封装
+// 20240825: 修复bug: get方法 
 func (fio *FileIO) Read(lgPos *LogPos) *LogRecord {
 	file, err := os.OpenFile(filepath.Join(fio.DirPath, lgPos.Fid+".data"), os.O_RDONLY, 0666)
 	if err != nil {
