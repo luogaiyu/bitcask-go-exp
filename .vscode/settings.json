@@ -1,0 +1,7 @@
+{
+    "rust-analyzer.workspace.discoverConfig": null,
+    "go.inferGopath": false,
+    "go.testFlags": [
+        "-v",
+    ],
+}

@@ -39,6 +39,7 @@ func InitDB() *DB {
 	return db
 }
 
+
 func (db *DB) Put(key []byte, value []byte) {
 	// 首先将数据保存到索引中, 再将数据写入到内存中, 为什么不将所有的数据写入到内存中, 如果全部写入到内存中可以存多少条数据?
 	// todo 这里可以先判断这个数据在索引中是否提前存在
@@ -47,8 +48,10 @@ func (db *DB) Put(key []byte, value []byte) {
 	// lgPos LogPos, logRecord LogRecord
 	lgRecord := &LogRecord{
 		RType:     LogRecordNormal, // 记录类型, 分为0和1
-		KeySize:   uint32(unsafe.Sizeof(key)),
-		ValueSize: uint32(unsafe.Sizeof(value)),
+		// 20240825 修复bug: unsafe.sizeOf 指的是数组的指针的长度
+		KeySize:   uint32(len(key)),
+		ValueSize: uint32(len(value)),
+		// 20240825 修复bug: unsafe.sizeOf 指的是数组的指针的长度
 		Key:       key,
 		Value:     value,
 	}

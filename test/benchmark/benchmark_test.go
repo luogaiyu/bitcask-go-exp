@@ -39,8 +39,10 @@ func Test_benchmark_single_process_put_get_once(T *testing.T) {
 	cur_db.TrucDB()
 }
 
-// 单线程存数据100次
+// 单线程存数据1000次
 // 20240824 发现 如果多次进行数据存放操作, 会导致数据被重复写入同一个 offset 这个是因为修改了 offset的逻辑导致的, 看起来offset 是有必要的
+// 20240825: 序列化 反序列化的逻辑有问题
+// 20240825: 成功修复
 func Test_benchmark_single_process_put_get_100_times(T *testing.T) {
 	cur_db := db.InitDB()
 	res_map := make(map[string]string)
@@ -52,7 +54,6 @@ func Test_benchmark_single_process_put_get_100_times(T *testing.T) {
 	}
 
 	i := 0
-
 	// 打印当前的数据
 	for key := range res_map {
 		i++
@@ -64,7 +65,7 @@ func Test_benchmark_single_process_put_get_100_times(T *testing.T) {
 			assert.Equal(res_map[key], string(res), "test db [delete get] process is wrong count : "+strconv.Itoa(i))
 		}
 	}
-	// cur_db.TrucDB()
+	cur_db.TrucDB()
 }
 
 func process(T *testing.T, db *db.DB, quant uint32) {
