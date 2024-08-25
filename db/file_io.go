@@ -1,10 +1,10 @@
 package db
 
 import (
-	"path/filepath"
 	"encoding/binary"
 	"log"
 	"os"
+	"path/filepath"
 	"unsafe"
 )
 
@@ -32,6 +32,7 @@ func (fio *FileIO) Write(lgPos LogPos, logRecord LogRecord) (error, uint32) {
 	defer file.Close()
 	return err, n
 }
+
 // 需要对 解码方法进行封装
 func (fio *FileIO) Read(lgPos *LogPos) *LogRecord {
 	file, err := os.OpenFile(filepath.Join(fio.DirPath, lgPos.Fid+".data"), os.O_RDONLY, 0666)
@@ -40,8 +41,8 @@ func (fio *FileIO) Read(lgPos *LogPos) *LogRecord {
 	}
 	defer file.Close()
 	cursor := int64(lgPos.Offset)
+
 	lgRecord := &LogRecord{}
-	
 
 	// 查看当前的数据
 	rtype := make([]byte, unsafe.Sizeof(lgRecord.RType))
@@ -60,15 +61,11 @@ func (fio *FileIO) Read(lgPos *LogPos) *LogRecord {
 	cursor += int64(n)
 	lgRecord.ValueSize = binary.BigEndian.Uint32(valueSize)
 
-	key := make([]byte, lgRecord.KeySize)
-	n, _ = file.ReadAt(key, cursor)
-	cursor += int64(n)
-	lgRecord.Key = key
-
-	value := make([]byte, lgRecord.ValueSize)
-	n, _ = file.ReadAt(value, cursor)
-	cursor += int64(n)
-	lgRecord.Value = value
-
+	//获取整体的长度, 为什么需要把keysize,valueSize存在文件中?
+	byte_len := uint32(unsafe.Sizeof(lgRecord.RType)) + uint32(unsafe.Sizeof(lgRecord.KeySize)) + uint32(unsafe.Sizeof(lgRecord.ValueSize)) + binary.BigEndian.Uint32(keySize) + binary.BigEndian.Uint32(valueSize)
+	value := make([]byte, byte_len)
+	n, _ = file.ReadAt(value, int64(lgPos.Offset))
+	lgRecord = DecodeLogRecord(value)
+	// 返回
 	return lgRecord
 }

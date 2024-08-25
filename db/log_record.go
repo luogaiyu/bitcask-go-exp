@@ -70,8 +70,8 @@ func EncodeLogRecord(lgRecord LogRecord) ([]byte, uint32) {
 }
 
 // 将对应的[]byte 转换成 logRecord 这里需要把bool也返回
-func DecodeLogRecord(value []byte) LogRecord {
-	lgRecord := LogRecord{}
+func DecodeLogRecord(value []byte) *LogRecord {
+	lgRecord := &LogRecord{}
 	var index = 0
 	RType := uint8(value[index])
 	index += 1
