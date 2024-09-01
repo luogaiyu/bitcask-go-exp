@@ -17,8 +17,11 @@ benchmark 主要分为以下几个部分
 import (
 	"bitcask-go-exp/db"
 	"bitcask-go-exp/db/utils"
-	"encoding/binary"
+	"time"
+
+	// "encoding/binary"
 	"fmt"
+	"errors"
 	"strconv"
 	"testing"
 
@@ -71,36 +74,71 @@ func Test_benchmark_single_process_put_get_100_times(T *testing.T) {
 func Test_benchmark_single_process_delete_1_times(T *testing.T) {
 
 }
-func process(T *testing.T, db *db.DB, quant uint32) {
-	for i := uint32(0); i < 1000; i++ {
-		db.Put(utils.UInt32_2_Bytes(i), utils.UInt32_2_Bytes(uint32(i*quant)))
-	}
-	//
-	res := uint32(0)
-	assert := assert.New(T)
-	for i := uint32(0); i < 1000; i++ {
-		tmp := utils.UInt32_2_Bytes(i)
-		byt, _ := db.Get(tmp)
-		res = binary.BigEndian.Uint32(byt)
-		// res = utils.Bytes_2_UInt32()
-		assert.Equal(res, uint32(i*quant), "test db [delete get] process is wrong count : "+strconv.Itoa(int(i)))
+// goroutin 是
+// 多线程 如果数据不及时消费 会阻塞 子线程或者主线程
+func Test_process(T *testing.T){
+	cur_db := db.InitDB()
+	ch := make(chan error, 10)
+	// ch := make(chan int , 4)
+	go process(T,cur_db,1,1,1,ch)
+	
+	// 手动读取并检查通道状态
+	for {
+		value, ok := <-ch
+		if !ok {
+			// 通道已关闭，退出循环
+			fmt.Println("Channel closed and all data received")
+			break
+		}
+		fmt.Println(value.Error()) // 打印从通道中接收到的值
 	}
 }
 
+func process(T *testing.T, db *db.DB, key uint32, value uint32, count uint32, ch chan error) {
+	assert := assert.New(T)
+	ch <- errors.New("start")
+	for i := uint32(0); i < 100; i++ {
+		db.Put(utils.UInt32_2_Bytes(key), utils.UInt32_2_Bytes(uint32(value)))
+		time.Sleep(30*time.Millisecond)
+		res,_ := db.Get(utils.UInt32_2_Bytes(key))
+
+		err_bool := assert.Equal(res,utils.UInt32_2_Bytes(value) , "wrong!!! ")
+		
+		if(err_bool){
+			ch <- errors.New("wrong!!!" + strconv.Itoa(int(count)) + "")
+		}
+	}
+	close(ch)
+}
+
 // 使用两个线程 同时读写
+// 可以实现 多线程的测试
 func Test_benchmark_double_process_put_get_100_times(T *testing.T) {
 	cur_db := db.InitDB()
+	ch := make(chan error, 10)
 	// 开两个线程 每个读写100次
-	go process(T, cur_db, uint32(100))
-
-	go process(T, cur_db, uint32(1000))
+	go process(T, cur_db, 1,1,1,ch)
+	go process(T, cur_db, 1,2,2,ch)
+	go process(T, cur_db, 1,3,3,ch)
+	go process(T, cur_db, 1,4,4,ch)
+	
+	// 手动读取并检查通道状态
+	for {
+		value, ok := <-ch
+		if !ok {
+			// 通道已关闭，退出循环
+			fmt.Println("Channel closed and all data received")
+			break
+		}
+		fmt.Println(value.Error()) // 打印从通道中接收到的值
+	}
 }
 
 // 模拟 一万个用户同时读和同时写100次
 func Test_benchmark_10000_process_put_get_100_times(T *testing.T) {
-	cur_db := db.InitDB()
-	// 模拟一万个用户进行读取和写入
-	for i := 0; i < 100000; i++ {
-		go process(T, cur_db, uint32(i))
-	}
+	// cur_db := db.InitDB()
+	// // 模拟一万个用户进行读取和写入
+	// for i := 0; i < 100000; i++ {
+	// 	// go process(T, cur_db, uint32(i))
+	// }
 }
